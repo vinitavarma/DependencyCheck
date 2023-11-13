@@ -176,6 +176,7 @@ public class GolangDepAnalyzer extends AbstractFileTypeAnalyzer {
      */
     private Dependency createDependency(Dependency parentDependency, String name, String version, String revision, String subPath) {
         final Dependency dep = new Dependency(parentDependency.getActualFile(), true);
+        dep.addSourceReferences(parentDependency.getActualFile().getPath());
         dep.setEcosystem(DEPENDENCY_ECOSYSTEM);
         if (StringUtils.isNotBlank(subPath)) {
             dep.setDisplayFileName(name + "/" + subPath);

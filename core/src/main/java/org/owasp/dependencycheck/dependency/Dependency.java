@@ -110,6 +110,10 @@ public class Dependency extends EvidenceCollection implements Serializable {
      */
     private final Set<IncludedByReference> includedBy = new HashSet<>();
     /**
+     * The paths to the source of the dependency; i.e. the pom.xml or build.gradle.
+     */
+    private final Set<String> sourceReferences = new HashSet<>();
+    /**
      * A list of projects that reference this dependency.
      */
     private final Set<String> projectReferences = new HashSet<>();
@@ -177,6 +181,7 @@ public class Dependency extends EvidenceCollection implements Serializable {
      * or collected evidence about it
      */
     private String ecosystem;
+    
 
     /**
      * Constructs a new Dependency object.
@@ -810,6 +815,23 @@ public class Dependency extends EvidenceCollection implements Serializable {
     public synchronized void addIncludedBy(String includedBy) {
         this.includedBy.add(new IncludedByReference(includedBy, null));
     }
+    /**
+     * Get the unmodifiable set of source references.
+     *
+     * @return the unmodifiable set of source references.
+     */
+    public synchronized Set<String> getSourceReferences() {
+        return Collections.unmodifiableSet(sourceReferences);
+    }
+    /**
+     * Adds a reference to the source of the dependency; pom.xml, build.gradle, 
+     * poetry.lock, etc.
+     *
+     * @param sourceReferences a project file reference
+     */
+    public synchronized void addSourceReferences(String sourceReferences) {
+        this.sourceReferences.add(sourceReferences);
+    }
 
     /**
      * Adds the parent or root of the transitive dependency chain (i.e., this
@@ -1033,7 +1055,7 @@ public class Dependency extends EvidenceCollection implements Serializable {
     public void setEcosystem(String ecosystem) {
         this.ecosystem = ecosystem;
     }
-
+    
     //CSOFF: OperatorWrap
     /**
      * Simple sorting by display file name and actual file path.
