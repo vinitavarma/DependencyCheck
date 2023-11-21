@@ -19,7 +19,7 @@ package org.owasp.dependencycheck;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.jcs.JCS;
+import org.apache.commons.jcs3.JCS;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.owasp.dependencycheck.analyzer.AnalysisPhase;
@@ -641,7 +641,7 @@ public class Engine implements FileFilter, AutoCloseable {
         LOGGER.info("\n\nDependency-Check is an open source tool performing a best effort analysis of 3rd party dependencies; false positives and "
                 + "false negatives may exist in the analysis performed by the tool. Use of the tool and the reporting provided constitutes "
                 + "acceptance for use in an AS IS condition, and there are NO warranties, implied or otherwise, with regard to the analysis "
-                + "or its use. Any use of the tool and the reporting provided is at the user’s risk. In no event shall the copyright holder "
+                + "or its use. Any use of the tool and the reporting provided is at the user's risk. In no event shall the copyright holder "
                 + "or OWASP be held liable for any damages whatsoever arising out of or in connection with the use of this tool, the analysis "
                 + "performed, or the resulting report.\n\n\n"
                 + "   About ODC: https://jeremylong.github.io/DependencyCheck/general/internals.html\n"

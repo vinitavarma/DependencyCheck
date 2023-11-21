@@ -26,7 +26,7 @@ jobs:
         run: |
           cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check Maven Cache
         id: maven-cache
         uses: actions/cache@v3
@@ -142,7 +142,7 @@ jobs:
           path: ~/OWASP-Dependency-Check
           key: docker-repo
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Download release build
         uses: actions/download-artifact@v3
         with:
@@ -164,7 +164,7 @@ jobs:
     needs: build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Get version
         id: get-version
         run: |
@@ -185,19 +185,10 @@ jobs:
           prerelease: false
           draft: false
           body: |
-            ### Added
+            - fix: bump jcs3 (#6047)
+            - docs: Corrected docs on hostedSuppressions (#6035)
 
-            - feat: Add support for Nexus v3 to NexusAnalyzer (#5849)
-
-            ### Fixed
-
-            - fix: Hint Analyzer should run before VersionFilter Analyzer (#5818)
-            - chore: switch to sha1-pinning as suggested by Semgrep
-            - fix: OSS Index Analyzer SocketTimeoutException exception handling based on warn only parameter (#5845)
-            - fix: use curl with -L to follow github redirect (#5808)
-            - fix: use curl with -L to follow github redirect
-            - fix: #5671 out of memory error (#5789)
-            - fix: #5671 Exit method as soon as we detect a loop to prevent an infinite loop leading to an OutOfMemoryError
+            See the full listing of [changes](https://github.com/jeremylong/DependencyCheck/milestone/70?closed=1).
 
       - name: Upload CLI
         id: upload-release-cli
@@ -256,7 +247,7 @@ jobs:
     needs: build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Download Site
         uses: actions/download-artifact@v3
         with:

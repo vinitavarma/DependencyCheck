@@ -20,7 +20,7 @@ Copyright (c) 2013 - Jeremy Long. All Rights Reserved.
     <parent>
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-parent</artifactId>
-        <version>8.4.1-SNAPSHOT</version>
+        <version>8.4.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>dependency-check-ant</artifactId>
@@ -251,6 +251,14 @@ Copyright (c) 2013 - Jeremy Long. All Rights Reserved.
             <groupId>org.owasp</groupId>
             <artifactId>dependency-check-utils</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jcs3-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.jeremylong</groupId>
+            <artifactId>jcs3-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.owasp</groupId>
