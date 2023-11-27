@@ -19,7 +19,6 @@ package org.owasp.dependencycheck;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.jcs3.JCS;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.owasp.dependencycheck.analyzer.AnalysisPhase;
@@ -86,6 +85,7 @@ import static org.owasp.dependencycheck.analyzer.AnalysisPhase.PRE_IDENTIFIER_AN
 import static org.owasp.dependencycheck.analyzer.AnalysisPhase.PRE_INFORMATION_COLLECTION;
 import org.owasp.dependencycheck.analyzer.DependencyBundlingAnalyzer;
 import org.owasp.dependencycheck.dependency.naming.Identifier;
+import org.owasp.dependencycheck.utils.Utils;
 
 /**
  * Scans files, directories, etc. for Dependencies. Analyzers are loaded and
@@ -189,6 +189,9 @@ public class Engine implements FileFilter, AutoCloseable {
         this.serviceClassLoader = serviceClassLoader;
         this.mode = mode;
         this.accessExternalSchema = System.getProperty("javax.xml.accessExternalSchema");
+
+        checkRuntimeVersion();
+
         initializeEngine();
     }
 
@@ -219,7 +222,6 @@ public class Engine implements FileFilter, AutoCloseable {
         } else {
             System.clearProperty("javax.xml.accessExternalSchema");
         }
-        JCS.shutdown();
     }
 
     /**
@@ -254,8 +256,8 @@ public class Engine implements FileFilter, AutoCloseable {
 
     /**
      * Adds a dependency. In some cases, when adding a virtual dependency, the
-     * method will identify if the virtual dependency was previously added and update
-     * the existing dependency rather then adding a duplicate.
+     * method will identify if the virtual dependency was previously added and
+     * update the existing dependency rather then adding a duplicate.
      *
      * @param dependency the dependency to add
      */
@@ -1280,6 +1282,19 @@ public class Engine implements FileFilter, AutoCloseable {
             return count == left.size();
         }
         return false;
+    }
+
+    /**
+     * Checks that if Java 8 is being used, it is at least update 251. This is
+     * required as a new method was introduced that is used by Apache HTTP
+     * Client. See
+     * https://stackoverflow.com/questions/76226322/exception-in-thread-httpclient-dispatch-1-java-lang-nosuchmethoderror-javax-n#comment134427003_76226322
+     */
+    private void checkRuntimeVersion() {
+        if (Utils.getJavaVersion() == 8 && Utils.getJavaUpdateVersion() < 251) {
+            LOGGER.error("Non-supported Java Runtime: dependency-check requires at least Java 8 update 251 or higher.");
+            throw new RuntimeException("dependency-check requires Java 8 update 251 or higher");
+        }
     }
 
     /**

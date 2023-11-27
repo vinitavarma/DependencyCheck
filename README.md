@@ -8,18 +8,39 @@ Dependency-Check is a Software Composition Analysis (SCA) tool that attempts to 
 
 Documentation and links to production binary releases can be found on the [github pages](http://jeremylong.github.io/DependencyCheck/). Additionally, more information about the architecture and ways to extend dependency-check can be found on the [wiki].
 
-## 8.0.0 Upgrade Notice
+## 9.0.0 Upgrade Notice
 
-8.0.0 contains breaking changes which requires updates to the database. If using
+**Upgrading to 9.0.0 or later is mandatory**; previous versions of dependency-check
+utilize the NVD data feeds which will be deprecated on Dec 15th, 2023. Versions
+earlier then 9.0.0 are no longer supported and could fail to work after Dec 15th, 2023.
+
+### NVD API Key Highly Recommended
+
+With 9.0.0 dependency-check has moved from using the NVD data-feed to the NVD API.
+Users of dependency-check are **highly** encouraged to obtain an NVD API Key; see https://nvd.nist.gov/developers/request-an-api-key
+Without an NVD API Key dependency-check's updates will be **extremely slow**.
+Please see the documentation for the cli, maven, gradle, or ant integrations on
+how to set the NVD API key.
+
+### Breaking Changes
+
+9.0.0 contains breaking changes which requires updates to the database. If using
 an externally hosted database the schema will need to be updated. When using the
-embedded H2 database the schema should be upgraded automatically. However, if
+embedded H2 database, the schema should be upgraded automatically. However, if
 issues arise you may need to purge the database:
 
 - gradle: `./gradlew dependencyCheckPurge`
-- maven: `mvn org.owasp:dependency-check-maven:8.0.0:purge`
+- maven: `mvn org.owasp:dependency-check-maven:9.0.0:purge`
 - cli: `dependency-check.sh --purge`
 
 ## Requirements
+
+### Java Version
+
+Minimum Java Version: Java 8 update 251
+
+While dependency-check 9.0.0 and higher will still run on Java 8 - the update version
+must be higher then 251.
 
 ### Internet Access
 
@@ -305,6 +326,8 @@ License
 Permission to modify and redistribute is granted under the terms of the Apache 2.0 license. See the [LICENSE.txt](https://raw.githubusercontent.com/jeremylong/DependencyCheck/main/LICENSE.txt) file for the full license.
 
 Dependency-Check makes use of several other open source libraries. Please see the [NOTICE.txt][notices] file for more information.
+
+This product uses the NVD API but is not endorsed or certified by the NVD.
 
 Copyright (c) 2012-2023 Jeremy Long. All Rights Reserved.
 
