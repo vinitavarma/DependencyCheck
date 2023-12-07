@@ -2180,12 +2180,8 @@ public abstract class BaseDependencyCheckMojo extends AbstractMojo implements Ma
         // use global maven proxy if provided
         final Proxy mavenProxy = getMavenProxy();
         if (mavenProxy != null) {
-            //https.proxyHost
-            //https.proxyPort
-            //https.proxyUser
-            //https.proxyPassword
-            //http.nonProxyHosts
-            if (mavenProxy.getHost() != null && !mavenProxy.getHost().isEmpty()) {
+            final String existing = System.getProperty("https.proxyHost");
+            if (existing == null && mavenProxy.getHost() != null && !mavenProxy.getHost().isEmpty()) {
                 System.setProperty("https.proxyHost", mavenProxy.getHost());
                 if (mavenProxy.getPort() > 0) {
                     System.setProperty("https.proxyPort", String.valueOf(mavenProxy.getPort()));
