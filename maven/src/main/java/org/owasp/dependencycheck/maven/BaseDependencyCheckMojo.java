@@ -2180,193 +2180,327 @@ public abstract class BaseDependencyCheckMojo extends AbstractMojo implements Ma
         // use global maven proxy if provided
         final Proxy mavenProxy = getMavenProxy();
         if (mavenProxy != null) {
-            settings.setString(Settings.KEYS.PROXY_SERVER, mavenProxy.getHost());
-            settings.setString(Settings.KEYS.PROXY_PORT, Integer.toString(mavenProxy.getPort()));
-            final String userName = mavenProxy.getUsername();
-            String password = mavenProxy.getPassword();
-            if (password != null && !password.isEmpty()) {
-                if (settings.getBoolean(Settings.KEYS.PROXY_DISABLE_SCHEMAS, true)) {
-                    System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+            //https.proxyHost
+            //https.proxyPort
+            //https.proxyUser
+            //https.proxyPassword
+            //http.nonProxyHosts
+            if (mavenProxy.getHost() != null && !mavenProxy.getHost().isEmpty()) {
+                System.setProperty("https.proxyHost", mavenProxy.getHost());
+                if (mavenProxy.getPort() > 0) {
+                    System.setProperty("https.proxyPort", String.valueOf(mavenProxy.getPort()));
                 }
-                try {
-                    password = decryptPasswordFromSettings(password);
-                } catch (SecDispatcherException ex) {
-                    password = handleSecDispatcherException("proxy", mavenProxy.getId(), password, ex);
+                if (mavenProxy.getUsername() != null && !mavenProxy.getUsername().isEmpty()) {
+                    System.setProperty("https.proxyUser", mavenProxy.getUsername());
+                }
+                if (mavenProxy.getPassword() != null && !mavenProxy.getPassword().isEmpty()) {
+                    System.setProperty("https.proxyPassword", mavenProxy.getPassword());
+                }
+                if (mavenProxy.getNonProxyHosts() != null && !mavenProxy.getNonProxyHosts().isEmpty()) {
+                    System.setProperty("https.nonProxyHosts", mavenProxy.getNonProxyHosts());
                 }
             }
-            settings.setStringIfNotNull(Settings.KEYS.PROXY_USERNAME, userName);
-            settings.setStringIfNotNull(Settings.KEYS.PROXY_PASSWORD, password);
-            settings.setStringIfNotNull(Settings.KEYS.PROXY_NON_PROXY_HOSTS, mavenProxy.getNonProxyHosts());
-        } else if (System.getProperty("http.proxyHost") != null) {
+        }
+
+        settings.setString(Settings.KEYS.PROXY_SERVER, mavenProxy.getHost());
+        settings.setString(Settings.KEYS.PROXY_PORT, Integer.toString(mavenProxy.getPort()));
+        final String userName = mavenProxy.getUsername();
+        String password = mavenProxy.getPassword();
+        if (password != null && !password.isEmpty()) {
+            if (settings.getBoolean(Settings.KEYS.PROXY_DISABLE_SCHEMAS, true)) {
+                System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+            }
+            try {
+                password = decryptPasswordFromSettings(password);
+            } catch (SecDispatcherException ex) {
+                password = handleSecDispatcherException("proxy", mavenProxy.getId(), password, ex);
+            }
+        }
+        settings.setStringIfNotNull(Settings.KEYS.PROXY_USERNAME, userName);
+        settings.setStringIfNotNull(Settings.KEYS.PROXY_PASSWORD, password);
+        settings.setStringIfNotNull(Settings.KEYS.PROXY_NON_PROXY_HOSTS, mavenProxy.getNonProxyHosts());
+    }
+
+    else if (System.getProperty (
+             
+        "http.proxyHost") != null) {
             //else use standard Java system properties
             settings.setString(Settings.KEYS.PROXY_SERVER, System.getProperty("http.proxyHost", ""));
-            if (System.getProperty("http.proxyPort") != null) {
-                settings.setString(Settings.KEYS.PROXY_PORT, System.getProperty("http.proxyPort"));
-            }
-            if (System.getProperty("http.proxyUser") != null) {
-                settings.setString(Settings.KEYS.PROXY_USERNAME, System.getProperty("http.proxyUser"));
-            }
-            if (System.getProperty("http.proxyPassword") != null) {
-                settings.setString(Settings.KEYS.PROXY_PASSWORD, System.getProperty("http.proxyPassword"));
-            }
-            if (System.getProperty("http.nonProxyHosts") != null) {
-                settings.setString(Settings.KEYS.PROXY_NON_PROXY_HOSTS, System.getProperty("http.nonProxyHosts"));
-            }
-        } else if (this.proxy != null && this.proxy.getHost() != null) {
+        if (System.getProperty("http.proxyPort") != null) {
+            settings.setString(Settings.KEYS.PROXY_PORT, System.getProperty("http.proxyPort"));
+        }
+        if (System.getProperty("http.proxyUser") != null) {
+            settings.setString(Settings.KEYS.PROXY_USERNAME, System.getProperty("http.proxyUser"));
+        }
+        if (System.getProperty("http.proxyPassword") != null) {
+            settings.setString(Settings.KEYS.PROXY_PASSWORD, System.getProperty("http.proxyPassword"));
+        }
+        if (System.getProperty("http.nonProxyHosts") != null) {
+            settings.setString(Settings.KEYS.PROXY_NON_PROXY_HOSTS, System.getProperty("http.nonProxyHosts"));
+        }
+    }
+    else if (this.proxy
+
+    != null && this.proxy.getHost () 
+        != null) {
             // or use configured <proxy>
             settings.setString(Settings.KEYS.PROXY_SERVER, this.proxy.getHost());
-            settings.setString(Settings.KEYS.PROXY_PORT, Integer.toString(this.proxy.getPort()));
-            // user name and password from <server> entry settings.xml
-            configureServerCredentials(this.proxy.getServerId(), Settings.KEYS.PROXY_USERNAME, Settings.KEYS.PROXY_PASSWORD);
-        }
-
-        final String[] suppressions = determineSuppressions();
-        settings.setArrayIfNotEmpty(Settings.KEYS.SUPPRESSION_FILE, suppressions);
-        settings.setBooleanIfNotNull(Settings.KEYS.UPDATE_VERSION_CHECK_ENABLED, versionCheckEnabled);
-        settings.setStringIfNotEmpty(Settings.KEYS.CONNECTION_TIMEOUT, connectionTimeout);
-        settings.setStringIfNotEmpty(Settings.KEYS.CONNECTION_READ_TIMEOUT, readTimeout);
-        settings.setStringIfNotEmpty(Settings.KEYS.HINTS_FILE, hintsFile);
-        settings.setFloat(Settings.KEYS.JUNIT_FAIL_ON_CVSS, junitFailOnCVSS);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_JAR_ENABLED, jarAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_NUSPEC_ENABLED, nuspecAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_NUGETCONF_ENABLED, nugetconfAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_LIBMAN_ENABLED, libmanAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_CENTRAL_ENABLED, centralAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_CENTRAL_USE_CACHE, centralAnalyzerUseCache);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_ENABLED, artifactoryAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_NEXUS_ENABLED, nexusAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_ASSEMBLY_ENABLED, assemblyAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_MSBUILD_PROJECT_ENABLED, msbuildAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_ARCHIVE_ENABLED, archiveAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_KNOWN_EXPLOITED_ENABLED, knownExploitedEnabled);
-        settings.setStringIfNotEmpty(Settings.KEYS.KEV_URL, knownExploitedUrl);
-        settings.setStringIfNotEmpty(Settings.KEYS.ADDITIONAL_ZIP_EXTENSIONS, zipExtensions);
-        settings.setStringIfNotEmpty(Settings.KEYS.ANALYZER_ASSEMBLY_DOTNET_PATH, pathToCore);
-        settings.setStringIfNotEmpty(Settings.KEYS.ANALYZER_NEXUS_URL, nexusUrl);
-        configureServerCredentials(nexusServerId, Settings.KEYS.ANALYZER_NEXUS_USER, Settings.KEYS.ANALYZER_NEXUS_PASSWORD);
-
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_NEXUS_USES_PROXY, nexusUsesProxy);
-        settings.setStringIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_URL, artifactoryAnalyzerUrl);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_USES_PROXY, artifactoryAnalyzerUseProxy);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_PARALLEL_ANALYSIS, artifactoryAnalyzerParallelAnalysis);
-        if (Boolean.TRUE.equals(artifactoryAnalyzerEnabled)) {
-            if (artifactoryAnalyzerServerId != null) {
-                configureServerCredentials(artifactoryAnalyzerServerId, Settings.KEYS.ANALYZER_ARTIFACTORY_API_USERNAME,
-                        Settings.KEYS.ANALYZER_ARTIFACTORY_API_TOKEN);
-            } else {
-                settings.setStringIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_API_USERNAME, artifactoryAnalyzerUsername);
-                settings.setStringIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_API_TOKEN, artifactoryAnalyzerApiToken);
-            }
-            settings.setStringIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_BEARER_TOKEN, artifactoryAnalyzerBearerToken);
-        }
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_PYTHON_DISTRIBUTION_ENABLED, pyDistributionAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_PYTHON_PACKAGE_ENABLED, pyPackageAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_RUBY_GEMSPEC_ENABLED, rubygemsAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_OPENSSL_ENABLED, opensslAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_CMAKE_ENABLED, cmakeAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_AUTOCONF_ENABLED, autoconfAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_MAVEN_INSTALL_ENABLED, mavenInstallAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_PIP_ENABLED, pipAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_PIPFILE_ENABLED, pipfileAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_POETRY_ENABLED, poetryAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_COMPOSER_LOCK_ENABLED, composerAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_CPANFILE_ENABLED, cpanfileAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_NODE_PACKAGE_ENABLED, nodeAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_NODE_AUDIT_ENABLED, nodeAuditAnalyzerEnabled);
-        settings.setStringIfNotNull(Settings.KEYS.ANALYZER_NODE_AUDIT_URL, nodeAuditAnalyzerUrl);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_NODE_AUDIT_USE_CACHE, nodeAuditAnalyzerUseCache);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_NODE_PACKAGE_SKIPDEV, nodePackageSkipDevDependencies);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_NODE_AUDIT_SKIPDEV, nodeAuditSkipDevDependencies);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_YARN_AUDIT_ENABLED, yarnAuditAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_PNPM_AUDIT_ENABLED, pnpmAuditAnalyzerEnabled);
-
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_RETIREJS_ENABLED, retireJsAnalyzerEnabled);
-        settings.setStringIfNotNull(Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_URL, retireJsUrl);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_RETIREJS_FORCEUPDATE, retireJsForceUpdate);
-
-        if (retireJsUser == null && retireJsPassword == null && retireJsUrlServerId != null) {
-            configureServerCredentials(retireJsUrlServerId, Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_USER, Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_PASSWORD);
-        } else {
-            settings.setStringIfNotEmpty(Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_USER, retireJsUser);
-            settings.setStringIfNotEmpty(Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_PASSWORD, retireJsPassword);
-        }
-
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_MIX_AUDIT_ENABLED, mixAuditAnalyzerEnabled);
-        settings.setStringIfNotNull(Settings.KEYS.ANALYZER_MIX_AUDIT_PATH, mixAuditPath);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_BUNDLE_AUDIT_ENABLED, bundleAuditAnalyzerEnabled);
-        settings.setStringIfNotNull(Settings.KEYS.ANALYZER_BUNDLE_AUDIT_PATH, bundleAuditPath);
-        settings.setStringIfNotNull(Settings.KEYS.ANALYZER_BUNDLE_AUDIT_WORKING_DIRECTORY, bundleAuditWorkingDirectory);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_COCOAPODS_ENABLED, cocoapodsAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_SWIFT_PACKAGE_MANAGER_ENABLED, swiftPackageManagerAnalyzerEnabled);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_SWIFT_PACKAGE_RESOLVED_ENABLED, swiftPackageResolvedAnalyzerEnabled);
-
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_OSSINDEX_ENABLED, ossindexAnalyzerEnabled);
-        settings.setStringIfNotEmpty(Settings.KEYS.ANALYZER_OSSINDEX_URL, ossindexAnalyzerUrl);
-        configureServerCredentials(ossIndexServerId, Settings.KEYS.ANALYZER_OSSINDEX_USER, Settings.KEYS.ANALYZER_OSSINDEX_PASSWORD);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_OSSINDEX_USE_CACHE, ossindexAnalyzerUseCache);
-        settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_OSSINDEX_WARN_ONLY_ON_REMOTE_ERRORS, ossIndexWarnOnlyOnRemoteErrors);
-
-        if (retirejs != null) {
-            settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_RETIREJS_FILTER_NON_VULNERABLE, retirejs.getFilterNonVulnerable());
-            settings.setArrayIfNotEmpty(Settings.KEYS.ANALYZER_RETIREJS_FILTERS, retirejs.getFilters());
-        }
-
-        //Database configuration
-        settings.setStringIfNotEmpty(Settings.KEYS.DB_DRIVER_NAME, databaseDriverName);
-        settings.setStringIfNotEmpty(Settings.KEYS.DB_DRIVER_PATH, databaseDriverPath);
-        settings.setStringIfNotEmpty(Settings.KEYS.DB_CONNECTION_STRING, connectionString);
-
-        if (databaseUser == null && databasePassword == null && serverId != null) {
-            configureServerCredentials(serverId, Settings.KEYS.DB_USER, Settings.KEYS.DB_PASSWORD);
-        } else {
-            settings.setStringIfNotEmpty(Settings.KEYS.DB_USER, databaseUser);
-            settings.setStringIfNotEmpty(Settings.KEYS.DB_PASSWORD, databasePassword);
-        }
-        settings.setStringIfNotEmpty(Settings.KEYS.DATA_DIRECTORY, dataDirectory);
-        settings.setStringIfNotEmpty(Settings.KEYS.DB_FILE_NAME, dbFilename);
-
-        settings.setIntIfNotNull(Settings.KEYS.NVD_API_DELAY, nvdApiDelay);
-        settings.setStringIfNotEmpty(Settings.KEYS.NVD_API_DATAFEED_URL, nvdDatafeedUrl);
-        settings.setIntIfNotNull(Settings.KEYS.NVD_API_VALID_FOR_HOURS, nvdValidForHours);
-        settings.setIntIfNotNull(Settings.KEYS.NVD_API_MAX_RETRY_COUNT, nvdMaxRetryCount);
-        if (nvdApiKey == null && nvdApiServerId != null) {
-            configureServerCredentialsApiKey(nvdApiServerId, Settings.KEYS.NVD_API_KEY);
-        } else {
-            settings.setStringIfNotEmpty(Settings.KEYS.NVD_API_KEY, nvdApiKey);
-        }
-        if (nvdUser == null && nvdPassword == null && nvdDatafeedServerId != null) {
-            configureServerCredentials(nvdDatafeedServerId, Settings.KEYS.NVD_API_DATAFEED_USER, Settings.KEYS.NVD_API_DATAFEED_PASSWORD);
-        } else {
-            settings.setStringIfNotEmpty(Settings.KEYS.NVD_API_DATAFEED_USER, nvdUser);
-            settings.setStringIfNotEmpty(Settings.KEYS.NVD_API_DATAFEED_PASSWORD, nvdPassword);
-        }
-
-        settings.setBooleanIfNotNull(Settings.KEYS.PRETTY_PRINT, prettyPrint);
-        artifactScopeExcluded = new ArtifactScopeExcluded(skipTestScope, skipProvidedScope, skipSystemScope, skipRuntimeScope);
-        artifactTypeExcluded = new ArtifactTypeExcluded(skipArtifactType);
-        if (suppressionFileUser == null && suppressionFilePassword == null && suppressionFileServerId != null) {
-            configureServerCredentials(suppressionFileServerId, Settings.KEYS.SUPPRESSION_FILE_USER, Settings.KEYS.SUPPRESSION_FILE_PASSWORD);
-        } else {
-            settings.setStringIfNotEmpty(Settings.KEYS.SUPPRESSION_FILE_USER, suppressionFileUser);
-            settings.setStringIfNotEmpty(Settings.KEYS.SUPPRESSION_FILE_PASSWORD, suppressionFilePassword);
-        }
-        settings.setIntIfNotNull(Settings.KEYS.HOSTED_SUPPRESSIONS_VALID_FOR_HOURS, hostedSuppressionsValidForHours);
-        settings.setStringIfNotNull(Settings.KEYS.HOSTED_SUPPRESSIONS_URL, hostedSuppressionsUrl);
-        settings.setBooleanIfNotNull(Settings.KEYS.HOSTED_SUPPRESSIONS_FORCEUPDATE, hostedSuppressionsForceUpdate);
-        settings.setBooleanIfNotNull(Settings.KEYS.HOSTED_SUPPRESSIONS_ENABLED, hostedSuppressionsEnabled);
+        settings.setString(Settings.KEYS.PROXY_PORT, Integer.toString(this.proxy.getPort()));
+        // user name and password from <server> entry settings.xml
+        configureServerCredentials(this.proxy.getServerId(), Settings.KEYS.PROXY_USERNAME, Settings.KEYS.PROXY_PASSWORD);
     }
-    //CSON: MethodLength
 
-    /**
-     * Retrieves the server credentials from the settings.xml, decrypts the
-     * password, and places the values into the settings under the given key
-     * names.
-     *
-     * @param serverId the server id
-     * @param userSettingKey the property name for the username
-     * @param passwordSettingKey the property name for the password
-     */
-    private void configureServerCredentials(String serverId, String userSettingKey, String passwordSettingKey) {
+    final String[] suppressions = determineSuppressions();
+
+    settings.setArrayIfNotEmpty (Settings.KEYS.SUPPRESSION_FILE, suppressions);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.UPDATE_VERSION_CHECK_ENABLED, versionCheckEnabled);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.CONNECTION_TIMEOUT, connectionTimeout);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.CONNECTION_READ_TIMEOUT, readTimeout);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.HINTS_FILE, hintsFile);
+
+    settings.setFloat (Settings.KEYS.JUNIT_FAIL_ON_CVSS, junitFailOnCVSS);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_JAR_ENABLED, jarAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_NUSPEC_ENABLED, nuspecAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_NUGETCONF_ENABLED, nugetconfAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_LIBMAN_ENABLED, libmanAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_CENTRAL_ENABLED, centralAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_CENTRAL_USE_CACHE, centralAnalyzerUseCache);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_ARTIFACTORY_ENABLED, artifactoryAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_NEXUS_ENABLED, nexusAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_ASSEMBLY_ENABLED, assemblyAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_MSBUILD_PROJECT_ENABLED, msbuildAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_ARCHIVE_ENABLED, archiveAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_KNOWN_EXPLOITED_ENABLED, knownExploitedEnabled);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.KEV_URL, knownExploitedUrl);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.ADDITIONAL_ZIP_EXTENSIONS, zipExtensions);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.ANALYZER_ASSEMBLY_DOTNET_PATH, pathToCore);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.ANALYZER_NEXUS_URL, nexusUrl);
+
+    configureServerCredentials(nexusServerId, Settings.KEYS.ANALYZER_NEXUS_USER, Settings.KEYS.ANALYZER_NEXUS_PASSWORD);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_NEXUS_USES_PROXY, nexusUsesProxy);
+
+    settings.setStringIfNotNull (Settings.KEYS.ANALYZER_ARTIFACTORY_URL, artifactoryAnalyzerUrl);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_ARTIFACTORY_USES_PROXY, artifactoryAnalyzerUseProxy);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_ARTIFACTORY_PARALLEL_ANALYSIS, artifactoryAnalyzerParallelAnalysis);
+
+    if (Boolean.TRUE.equals (artifactoryAnalyzerEnabled) 
+        ) {
+            if (artifactoryAnalyzerServerId != null) {
+            configureServerCredentials(artifactoryAnalyzerServerId, Settings.KEYS.ANALYZER_ARTIFACTORY_API_USERNAME,
+                    Settings.KEYS.ANALYZER_ARTIFACTORY_API_TOKEN);
+        } else {
+            settings.setStringIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_API_USERNAME, artifactoryAnalyzerUsername);
+            settings.setStringIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_API_TOKEN, artifactoryAnalyzerApiToken);
+        }
+        settings.setStringIfNotNull(Settings.KEYS.ANALYZER_ARTIFACTORY_BEARER_TOKEN, artifactoryAnalyzerBearerToken);
+    }
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_PYTHON_DISTRIBUTION_ENABLED, pyDistributionAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_PYTHON_PACKAGE_ENABLED, pyPackageAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_RUBY_GEMSPEC_ENABLED, rubygemsAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_OPENSSL_ENABLED, opensslAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_CMAKE_ENABLED, cmakeAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_AUTOCONF_ENABLED, autoconfAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_MAVEN_INSTALL_ENABLED, mavenInstallAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_PIP_ENABLED, pipAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_PIPFILE_ENABLED, pipfileAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_POETRY_ENABLED, poetryAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_COMPOSER_LOCK_ENABLED, composerAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_CPANFILE_ENABLED, cpanfileAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_NODE_PACKAGE_ENABLED, nodeAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_NODE_AUDIT_ENABLED, nodeAuditAnalyzerEnabled);
+
+    settings.setStringIfNotNull (Settings.KEYS.ANALYZER_NODE_AUDIT_URL, nodeAuditAnalyzerUrl);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_NODE_AUDIT_USE_CACHE, nodeAuditAnalyzerUseCache);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_NODE_PACKAGE_SKIPDEV, nodePackageSkipDevDependencies);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_NODE_AUDIT_SKIPDEV, nodeAuditSkipDevDependencies);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_YARN_AUDIT_ENABLED, yarnAuditAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_PNPM_AUDIT_ENABLED, pnpmAuditAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_RETIREJS_ENABLED, retireJsAnalyzerEnabled);
+
+    settings.setStringIfNotNull (Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_URL, retireJsUrl);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_RETIREJS_FORCEUPDATE, retireJsForceUpdate);
+
+    if (retireJsUser == null && retireJsPassword == null && retireJsUrlServerId
+
+    
+        != null) {
+            configureServerCredentials(retireJsUrlServerId, Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_USER, Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_PASSWORD);
+    }
+
+    
+        else {
+            settings.setStringIfNotEmpty(Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_USER, retireJsUser);
+        settings.setStringIfNotEmpty(Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_PASSWORD, retireJsPassword);
+    }
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_MIX_AUDIT_ENABLED, mixAuditAnalyzerEnabled);
+
+    settings.setStringIfNotNull (Settings.KEYS.ANALYZER_MIX_AUDIT_PATH, mixAuditPath);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_BUNDLE_AUDIT_ENABLED, bundleAuditAnalyzerEnabled);
+
+    settings.setStringIfNotNull (Settings.KEYS.ANALYZER_BUNDLE_AUDIT_PATH, bundleAuditPath);
+
+    settings.setStringIfNotNull (Settings.KEYS.ANALYZER_BUNDLE_AUDIT_WORKING_DIRECTORY, bundleAuditWorkingDirectory);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_COCOAPODS_ENABLED, cocoapodsAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_SWIFT_PACKAGE_MANAGER_ENABLED, swiftPackageManagerAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_SWIFT_PACKAGE_RESOLVED_ENABLED, swiftPackageResolvedAnalyzerEnabled);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_OSSINDEX_ENABLED, ossindexAnalyzerEnabled);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.ANALYZER_OSSINDEX_URL, ossindexAnalyzerUrl);
+
+    configureServerCredentials(ossIndexServerId, Settings.KEYS.ANALYZER_OSSINDEX_USER, Settings.KEYS.ANALYZER_OSSINDEX_PASSWORD);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_OSSINDEX_USE_CACHE, ossindexAnalyzerUseCache);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.ANALYZER_OSSINDEX_WARN_ONLY_ON_REMOTE_ERRORS, ossIndexWarnOnlyOnRemoteErrors);
+
+    if (retirejs
+
+    
+        != null) {
+            settings.setBooleanIfNotNull(Settings.KEYS.ANALYZER_RETIREJS_FILTER_NON_VULNERABLE, retirejs.getFilterNonVulnerable());
+        settings.setArrayIfNotEmpty(Settings.KEYS.ANALYZER_RETIREJS_FILTERS, retirejs.getFilters());
+    }
+
+    //Database configuration
+    settings.setStringIfNotEmpty (Settings.KEYS.DB_DRIVER_NAME, databaseDriverName);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.DB_DRIVER_PATH, databaseDriverPath);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.DB_CONNECTION_STRING, connectionString);
+
+    if (databaseUser == null && databasePassword == null && serverId
+
+    
+        != null) {
+            configureServerCredentials(serverId, Settings.KEYS.DB_USER, Settings.KEYS.DB_PASSWORD);
+    }
+
+    
+        else {
+            settings.setStringIfNotEmpty(Settings.KEYS.DB_USER, databaseUser);
+        settings.setStringIfNotEmpty(Settings.KEYS.DB_PASSWORD, databasePassword);
+    }
+
+    settings.setStringIfNotEmpty (Settings.KEYS.DATA_DIRECTORY, dataDirectory);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.DB_FILE_NAME, dbFilename);
+
+    settings.setIntIfNotNull (Settings.KEYS.NVD_API_DELAY, nvdApiDelay);
+
+    settings.setStringIfNotEmpty (Settings.KEYS.NVD_API_DATAFEED_URL, nvdDatafeedUrl);
+
+    settings.setIntIfNotNull (Settings.KEYS.NVD_API_VALID_FOR_HOURS, nvdValidForHours);
+
+    settings.setIntIfNotNull (Settings.KEYS.NVD_API_MAX_RETRY_COUNT, nvdMaxRetryCount);
+    if (nvdApiKey == null && nvdApiServerId
+
+    
+        != null) {
+            configureServerCredentialsApiKey(nvdApiServerId, Settings.KEYS.NVD_API_KEY);
+    }
+
+    
+        else {
+            settings.setStringIfNotEmpty(Settings.KEYS.NVD_API_KEY, nvdApiKey);
+    }
+    if (nvdUser == null && nvdPassword == null && nvdDatafeedServerId
+
+    
+        != null) {
+            configureServerCredentials(nvdDatafeedServerId, Settings.KEYS.NVD_API_DATAFEED_USER, Settings.KEYS.NVD_API_DATAFEED_PASSWORD);
+    }
+
+    
+        else {
+            settings.setStringIfNotEmpty(Settings.KEYS.NVD_API_DATAFEED_USER, nvdUser);
+        settings.setStringIfNotEmpty(Settings.KEYS.NVD_API_DATAFEED_PASSWORD, nvdPassword);
+    }
+
+    settings.setBooleanIfNotNull (Settings.KEYS.PRETTY_PRINT, prettyPrint);
+    artifactScopeExcluded  = new ArtifactScopeExcluded(skipTestScope, skipProvidedScope, skipSystemScope, skipRuntimeScope);
+    artifactTypeExcluded  = new ArtifactTypeExcluded(skipArtifactType);
+    if (suppressionFileUser == null && suppressionFilePassword == null && suppressionFileServerId
+
+    
+        != null) {
+            configureServerCredentials(suppressionFileServerId, Settings.KEYS.SUPPRESSION_FILE_USER, Settings.KEYS.SUPPRESSION_FILE_PASSWORD);
+    }
+
+    
+        else {
+            settings.setStringIfNotEmpty(Settings.KEYS.SUPPRESSION_FILE_USER, suppressionFileUser);
+        settings.setStringIfNotEmpty(Settings.KEYS.SUPPRESSION_FILE_PASSWORD, suppressionFilePassword);
+    }
+
+    settings.setIntIfNotNull (Settings.KEYS.HOSTED_SUPPRESSIONS_VALID_FOR_HOURS, hostedSuppressionsValidForHours);
+
+    settings.setStringIfNotNull (Settings.KEYS.HOSTED_SUPPRESSIONS_URL, hostedSuppressionsUrl);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.HOSTED_SUPPRESSIONS_FORCEUPDATE, hostedSuppressionsForceUpdate);
+
+    settings.setBooleanIfNotNull (Settings.KEYS.HOSTED_SUPPRESSIONS_ENABLED, hostedSuppressionsEnabled);
+}
+//CSON: MethodLength
+
+/**
+ * Retrieves the server credentials from the settings.xml, decrypts the
+ * password, and places the values into the settings under the given key names.
+ *
+ * @param serverId the server id
+ * @param userSettingKey the property name for the username
+ * @param passwordSettingKey the property name for the password
+ */
+private void configureServerCredentials(String serverId, String userSettingKey, String passwordSettingKey) {
         if (serverId != null) {
             final Server server = settingsXml.getServer(serverId);
             if (server != null) {
