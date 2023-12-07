@@ -2214,8 +2214,7 @@ public abstract class BaseDependencyCheckMojo extends AbstractMojo implements Ma
             settings.setStringIfNotNull(Settings.KEYS.PROXY_USERNAME, userName);
             settings.setStringIfNotNull(Settings.KEYS.PROXY_PASSWORD, password);
             settings.setStringIfNotNull(Settings.KEYS.PROXY_NON_PROXY_HOSTS, mavenProxy.getNonProxyHosts());
-        } else if (System.getProperty(
-                "http.proxyHost") != null) {
+        } else if (System.getProperty("http.proxyHost") != null) {
             //else use standard Java system properties
             settings.setString(Settings.KEYS.PROXY_SERVER, System.getProperty("http.proxyHost", ""));
             if (System.getProperty("http.proxyPort") != null) {
@@ -2230,9 +2229,7 @@ public abstract class BaseDependencyCheckMojo extends AbstractMojo implements Ma
             if (System.getProperty("http.nonProxyHosts") != null) {
                 settings.setString(Settings.KEYS.PROXY_NON_PROXY_HOSTS, System.getProperty("http.nonProxyHosts"));
             }
-        } else if (this.proxy
-                != null && this.proxy.getHost()
-                != null) {
+        } else if (this.proxy != null && this.proxy.getHost() != null) {
             // or use configured <proxy>
             settings.setString(Settings.KEYS.PROXY_SERVER, this.proxy.getHost());
             settings.setString(Settings.KEYS.PROXY_PORT, Integer.toString(this.proxy.getPort()));
