@@ -22,6 +22,13 @@ Without an NVD API Key dependency-check's updates will be **extremely slow**.
 Please see the documentation for the cli, maven, gradle, or ant integrations on
 how to set the NVD API key.
 
+#### The NVD API Key, CI, and Rate Limiting
+
+The NVD API has enforced rate limits. If you are using a single API KEY and
+multiple builds occur you could hit the rate limit and receive 403 errors. In
+a CI environment one must use a caching strategy.
+
+
 ### Breaking Changes
 
 9.0.0 contains breaking changes which requires updates to the database. If using
@@ -32,6 +39,26 @@ issues arise you may need to purge the database:
 - gradle: `./gradlew dependencyCheckPurge`
 - maven: `mvn org.owasp:dependency-check-maven:9.0.0:purge`
 - cli: `dependency-check.sh --purge`
+
+#### Gradle build Environment
+
+With 9.0.0 users may encounter issues with `NoSuchMethodError` exceptions due to
+dependency resolution. If you encounter this issue you will need to pin some of
+the transitive dependencies of dependency-check to specific versions. For example:
+
+/buildSrc/build.gradle
+```groovy
+dependencies {
+    constraints {
+        // org.owasp.dependencycheck needs at least this version of jackson. Other plugins pull in older versions..
+        add("implementation", "com.fasterxml.jackson:jackson-bom:2.16.1")
+
+        // org.owasp.dependencycheck needs these versions. Other plugins pull in older versions..
+        add("implementation", "org.apache.commons:commons-lang3:3.14.0")
+        add("implementation", "org.apache.commons:commons-text:1.11.0")
+    }
+}
+```
 
 ## Requirements
 
@@ -329,7 +356,7 @@ Dependency-Check makes use of several other open source libraries. Please see th
 
 This product uses the NVD API but is not endorsed or certified by the NVD.
 
-Copyright (c) 2012-2023 Jeremy Long. All Rights Reserved.
+Copyright (c) 2012-2024 Jeremy Long. All Rights Reserved.
 
   [wiki]: https://github.com/jeremylong/DependencyCheck/wiki
   [notices]: https://github.com/jeremylong/DependencyCheck/blob/main/NOTICE.txt

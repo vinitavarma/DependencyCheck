@@ -20,7 +20,7 @@ Copyright (c) 2012 - Jeremy Long
 
     <groupId>org.owasp</groupId>
     <artifactId>dependency-check-parent</artifactId>
-    <version>9.0.2-SNAPSHOT</version>
+    <version>9.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -112,12 +112,12 @@ Copyright (c) 2012 - Jeremy Long
     </licenses>
     <properties>
         <!--reproducible build-->
-        <project.build.outputTimestamp>2023-11-26T11:34:05Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2024-03-31T11:36:57Z</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <github.global.server>github</github.global.server>
         
-        <apache.lucene.version>8.11.2</apache.lucene.version>
+        <apache.lucene.version>8.11.3</apache.lucene.version>
         <apache.ant.version>1.10.14</apache.ant.version>
         
         <!-- upgrading slf4j and logback can cause issues ;) https://github.com/jeremylong/DependencyCheck/issues/4846 -->
@@ -130,21 +130,21 @@ Copyright (c) 2012 - Jeremy Long
         <doxia-module-markdown.version>1.12.0</doxia-module-markdown.version>
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
-        <maven-javadoc-plugin.version>3.6.2</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
         <!-- upgrading beyond 2.5 breaks maven site-->
         <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
-        <maven-project-info-reports-plugin.version>3.4.5</maven-project-info-reports-plugin.version>
+        <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.2.2</maven-surefire-report-plugin.version>
         <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
         <spotbugs.version>4.8.0</spotbugs.version>
-        <spotbugs.maven.plugin.version>4.7.3.6</spotbugs.maven.plugin.version>
+        <spotbugs.maven.plugin.version>4.8.4.0</spotbugs.maven.plugin.version>
         <taglist-maven-plugin.version>3.0.0</taglist-maven-plugin.version>
-        <versions-maven-plugin.version>2.16.1</versions-maven-plugin.version>
-        <jetbrains.annotations.version>24.0.1</jetbrains.annotations.version>
+        <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
+        <jetbrains.annotations.version>24.1.0</jetbrains.annotations.version>
         <com.h2database.version>2.2.224</com.h2database.version>
         <commons-cli.version>1.6.0</commons-cli.version>
         <commons-io.version>2.15.0</commons-io.version>
-        <commons-lang3.version>3.13.0</commons-lang3.version>
+        <commons-lang3.version>3.14.0</commons-lang3.version>
         <commons-text.version>1.11.0</commons-text.version>
         <!-- note that logging will be noisy and broken until we upgrade to 3.2
             See https://issues.apache.org/jira/browse/JCS-232 and
@@ -155,11 +155,11 @@ Copyright (c) 2012 - Jeremy Long
         <hamcrest.version>2.2</hamcrest.version>
         <jmockit.version>1.49</jmockit.version>
         <mockito-core.version>4.11.0</mockito-core.version>
-        <jsoup.version>1.16.2</jsoup.version>
-        <commons-compress.version>1.25.0</commons-compress.version>
+        <jsoup.version>1.17.2</jsoup.version>
+        <commons-compress.version>1.26.1</commons-compress.version>
         <org.apache.maven.shared.file-management.version>3.1.0</org.apache.maven.shared.file-management.version>
         <maven-plugin-testing-harness.version>3.3.0</maven-plugin-testing-harness.version>
-        <maven-plugin-annotations.version>3.10.2</maven-plugin-annotations.version>
+        <maven-plugin-annotations.version>3.12.0</maven-plugin-annotations.version>
         <maven-reporting-api.version>3.1.1</maven-reporting-api.version>    
         <org.apache.velocity.version>2.3</org.apache.velocity.version>
         <plexus-sec-dispatcher.version>1.4</plexus-sec-dispatcher.version>
@@ -169,7 +169,7 @@ Copyright (c) 2012 - Jeremy Long
         <groovy-all.version>2.4.21</groovy-all.version>
         <gmavenplus-plugin.version>3.0.2</gmavenplus-plugin.version>
         <com.h3xstream.retirejs.core.version>3.0.4</com.h3xstream.retirejs.core.version>
-        <jackson.version>2.16.0</jackson.version>
+        <jackson.version>2.16.1</jackson.version>
         <!--necassary for some IDEs to be able to execute test cases (Netbeans)-->
         <surefireArgLine />
         
@@ -235,7 +235,7 @@ Copyright (c) 2012 - Jeremy Long
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-artifact-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.5.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -302,7 +302,7 @@ Copyright (c) 2012 - Jeremy Long
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.2.5</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -334,7 +334,7 @@ Copyright (c) 2012 - Jeremy Long
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.6.1</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.codehaus.groovy</groupId>
@@ -498,7 +498,7 @@ Copyright (c) 2012 - Jeremy Long
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-artifact-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.5.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -689,7 +689,7 @@ Copyright (c) 2012 - Jeremy Long
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.10.0.2594</version>
+                <version>3.11.0.3922</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -972,7 +972,7 @@ Copyright (c) 2012 - Jeremy Long
             <dependency>
                 <groupId>io.github.jeremylong</groupId>
                 <artifactId>open-vulnerability-clients</artifactId>
-                <version>5.0.3</version>
+                <version>6.0.1</version>
             </dependency>
             <dependency>
                 <groupId>org.anarres.jdiagnostics</groupId>
@@ -1011,7 +1011,7 @@ Copyright (c) 2012 - Jeremy Long
             <dependency>
                 <groupId>io.github.jeremylong</groupId>
                 <artifactId>jcs3-slf4j</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.5</version>
             </dependency>
             <dependency>
                 <groupId>commons-validator</groupId>
@@ -1031,7 +1031,7 @@ Copyright (c) 2012 - Jeremy Long
             <dependency>
                 <groupId>us.springett</groupId>
                 <artifactId>cpe-parser</artifactId>
-                <version>2.0.3</version>
+                <version>2.1.0</version>
             </dependency>
             <dependency>
                 <groupId>com.github.spotbugs</groupId>
@@ -1073,7 +1073,7 @@ Copyright (c) 2012 - Jeremy Long
             <dependency><!--upgrade transitive dependency due to reported vulns-->
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
-                <version>4.0.0</version>
+                <version>4.0.1</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
@@ -1180,7 +1180,7 @@ Copyright (c) 2012 - Jeremy Long
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.16.0</version>
+                <version>1.16.1</version>
             </dependency>
             <dependency>
                 <groupId>com.h3xstream.retirejs</groupId>
