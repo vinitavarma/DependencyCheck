@@ -1,6 +1,7 @@
 package org.owasp.dependencycheck.analyzer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
@@ -287,5 +288,18 @@ public class OssIndexAnalyzerTest extends BaseTest {
         public void close() throws Exception {
 
         }
+    }
+
+    @Test
+    public void should_parsePackageUrl_catch_illegal_package_name() {
+        // Given
+        OssIndexAnalyzer analyzer = new OssIndexAnalyzer();
+        String input = "pkg:maven/com.google.summit/summit-ast@2.2.0%A";
+
+        // When
+        PackageUrl output = analyzer.parsePackageUrl(input);
+
+        // Then
+        assertNull(output);
     }
 }

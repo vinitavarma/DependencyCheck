@@ -198,10 +198,10 @@ public class OssIndexAnalyzer extends AbstractAnalyzer {
      * @return the package url
      */
     @Nullable
-    private PackageUrl parsePackageUrl(final String value) {
+    PackageUrl parsePackageUrl(final String value) {
         try {
             return PackageUrl.parse(value);
-        } catch (InvalidException e) {
+        } catch (RuntimeException e) {
             LOG.debug("Invalid Package-URL: {}", value, e);
             return null;
         }
