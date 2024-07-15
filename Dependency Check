@@ -1,0 +1,26 @@
+<project>
+    ...
+    <build>
+        ... 
+        <plugins>
+            ...
+            <plugin>
+              <groupId>org.owasp</groupId>
+              <artifactId>dependency-check-maven</artifactId>
+              <version>6.2.2</version>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>check</goal>
+                      </goals>
+                  </execution>
+              </executions>
+            </plugin>
+            ...
+        </plugins>
+        ...
+    </build>
+    ...
+</project>
+
+dependency-check --project "Project Name" --scan ./ --format "HTML
